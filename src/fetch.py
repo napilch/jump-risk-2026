@@ -38,3 +38,19 @@ if __name__ == "__main__":
         df.to_csv(f"data/{tkr}_5m.csv", index=False)
         print(f"OK {tkr:6s} rows={len(df):6d} "
               f"first={df.dt.iloc[0]} last={df.dt.iloc[-1]}")
+
+TICKERS = ["NVDA","SMH","CRWV","IREN","CORZ","APLD","BE","RIOT","CLSK",
+           "MSFT","JNJ","KO"]
+
+def fetch_all():
+    import os
+    for t in TICKERS:
+        path = f"data/{t}_5m.csv"
+        if os.path.exists(path):
+            print(f"skip {t}"); continue
+        try:
+            df = fetch(t)
+            df.to_csv(path, index=False)
+            print(f"OK {t:6s} rows={len(df):6d} last={df.dt.iloc[-1]}")
+        except Exception as e:
+            print(f"FAIL {t:6s} {type(e).__name__}: {e}")
