@@ -29,3 +29,27 @@ if __name__ == "__main__":
         print(f"{t:6s} days={len(d):4d}  "
               f"ann.vol={np.sqrt(d.rv.mean()*252)*100:5.1f}%  "
               f"jump share={d.jump.sum()/d.rv.sum()*100:4.1f}%")
+
+from scipy import stats
+
+def bns_test(ticker, min_bars=50):
+    """Barndorff-Nielsen & Shephard jump test, ratio statistic."""
+    df = load(ticker)
+    mu1 = np.sqrt(2/np.pi)
+    out = []
+    for d, g in df.groupby("date"):
+        g = g.sort_values("dt")
+        r = np.diff(np.log(g.close.values))
+        M = len(r)
+        if M < min_bars: continue
+        rv = np.sum(r**2)
+        bv = (mu1**-2) * np.sum(np.abs(r[:-1])*np.abs(r[1:]))
+        a = np.abs(r)
+        qp = (mu1**-4) * M/(M-3) * np.sum(a[3:]*a[2:-1]*a[1:-2]*a[:-3])
+        rj = (rv - bv) / rv
+        theta = (np.pi**2)/4 + np.pi - 5
+        denom = np.sqrt(theta * max(qp/bv**2, 1.0) / M)
+        z = rj / denom
+        out.append({"date": d, "rv": rv, "bv": bv, "rj": rj, "z": z,
+                    "p": 1 - stats.norm.cdf(z)})
+    return pd.DataFrame(out)
