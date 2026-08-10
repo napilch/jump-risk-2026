@@ -20,7 +20,7 @@ def fig_timeline():
             j = d[d.jump==1]
             ax.scatter(j.date, np.sqrt(j.rv*252)*100, s=22, zorder=5,
                        facecolors="none", edgecolors="black", lw=.8)
-        ax.axvline(PEAK, color="red", ls="--", lw=1)
+        ax.axvline(PEAK, color="red", ls="--", lw=1, label="22 Jun sector peak")
         ax.set_title(name, fontsize=10, loc="left")
         ax.set_ylabel("annualised vol (%)")
         ax.legend(fontsize=7, ncol=4, frameon=False)

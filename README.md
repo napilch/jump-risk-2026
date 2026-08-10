@@ -49,3 +49,26 @@ All results below use the simulated critical values.
 - Jump rate is a ratio: high-variance names mechanically need larger moves to
   register as jumps. This design cannot separate that from a genuine difference.
 - 13F holdings are lagged and incomplete, so treatment is measured with error.
+
+## Estimators
+
+For M intraday returns r_1 ... r_M on a given day:
+
+Realised variance (captures all variation, jumps included):
+
+    RV = sum of r_i^2
+
+Bipower variation (multiplies adjacent absolute returns, so a jump — which
+contaminates only one return — is largely excluded):
+
+    BV = (pi/2) * sum of |r_i| * |r_i+1|
+
+Under a continuous price process both estimate integrated variance and their
+ratio tends to 1. A jump inflates RV but leaves BV roughly unchanged, so the
+gap between them identifies the jump contribution. The test statistic is
+
+    z = [log(RV) - log(BV)] / sqrt(theta * TP / (M * BV^2))
+
+where theta = pi^2/4 + pi - 5 and TP is tripower quarticity, itself
+jump-robust. `tests/test_estimators.py` verifies each of these properties on
+simulated data.
