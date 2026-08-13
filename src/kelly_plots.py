@@ -56,3 +56,28 @@ def fig_ruin():
     fig.tight_layout()
     fig.savefig("figures/fig5_ruin.png", dpi=150)
     print("saved fig5")
+
+from estimation_error import kelly_distribution
+
+def fig_estimation():
+    tf = FSTAR
+    fig, ax = plt.subplots(1, 2, figsize=(11, 4.2))
+    for d, c in [(54,"tab:red"), (252,"tab:orange"), (2520,"tab:blue")]:
+        fh = kelly_distribution(MU, SIG, d)
+        ax[0].hist(np.clip(fh, -8, 12), bins=90, alpha=.45,
+                   density=True, color=c, label=f"{d} days")
+    ax[0].axvline(tf, color="black", ls="--", lw=1)
+    ax[0].axvline(2*tf, color="tab:red", ls=":", lw=1)
+    ax[0].set_xlabel("estimated Kelly leverage")
+    ax[0].set_ylabel("density")
+    ax[0].set_title("Estimated f* on a true f* of 1.5", loc="left", fontsize=10)
+    ax[0].legend(frameon=False, fontsize=8)
+    days = np.array([54,126,252,504,1260,2520,5040])
+    prob = [(kelly_distribution(MU,SIG,d) > 2*tf).mean()*100 for d in days]
+    ax[1].semilogx(days, prob, "o-", ms=4, color="tab:red")
+    ax[1].set_xlabel("days used to estimate mu")
+    ax[1].set_ylabel("P(estimated f > 2f*)  %")
+    ax[1].set_title("Overbetting risk barely decays", loc="left", fontsize=10)
+    fig.tight_layout()
+    fig.savefig("figures/fig6_estimation.png", dpi=150)
+    print("saved fig6")
